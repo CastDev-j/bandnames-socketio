@@ -1,9 +1,10 @@
-import { useBandList } from "../hooks/band-list";
+import { useBandList } from "../hooks/useBandList";
 
 export const BandList = () => {
   const {
     bands,
     changeBandName,
+    onBlurBandNameInput,
     clearList,
     decrementVote,
     deleteBand,
@@ -12,33 +13,46 @@ export const BandList = () => {
   } = useBandList();
 
   return (
-    <section className="w-full max-w-md">
+    <section className="w-full max-w-md" aria-label="Lista de Bandas">
       <div className="bg-neutral-800 rounded-xl shadow-2xl p-6 border border-neutral-700 backdrop-blur-sm">
         {/* Header */}
-        <div className="text-center mb-8">
+        <header className="text-center mb-8">
           <h1 className="text-3xl font-bold text-neutral-100 mb-1 tracking-tight">
             Lista de Bandas
           </h1>
           <p className="text-sm text-neutral-500">
             Agrega y gestiona tus bandas favoritas
           </p>
-        </div>
+        </header>
 
         <div className="w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent h-px my-6" />
 
         {/* Formulario */}
-        <form className="flex gap-3 mb-8" onSubmit={handleSubmit}>
+        <form
+          className="flex gap-3 mb-8"
+          onSubmit={handleSubmit}
+          aria-label="Agregar banda"
+          autoComplete="off"
+        >
+          <label htmlFor="band-input" className="sr-only">
+            Nombre de la banda
+          </label>
           <input
+            id="band-input"
             type="text"
             name="band"
             placeholder="Nombre de la banda..."
             className="text-neutral-100 placeholder-neutral-500 flex-1 px-4 py-3 rounded-lg border border-neutral-700 bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all"
             autoComplete="off"
             autoCorrect="off"
+            aria-label="Nombre de la banda"
+            required
+            maxLength={50}
           />
           <button
             type="submit"
             className="bg-neutral-700 hover:bg-neutral-600 text-neutral-100 px-5 py-3 rounded-lg transition-all font-medium shadow hover:shadow-lg active:scale-95 flex items-center"
+            aria-label="Agregar banda"
           >
             <span>Agregar</span>
             <svg
@@ -47,6 +61,8 @@ export const BandList = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -65,7 +81,11 @@ export const BandList = () => {
               BANDAS
             </div>
           </div>
-          <ul className="space-y-3 h-[40vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
+          <ul
+            className="space-y-3 h-[40vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900"
+            aria-live="polite"
+            aria-label="Lista de bandas"
+          >
             {bands.length === 0 ? (
               <li className="flex flex-col items-center justify-center h-[40vh] text-center text-neutral-400 border-2 border-dashed border-neutral-700 rounded-lg">
                 <svg
@@ -75,6 +95,8 @@ export const BandList = () => {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth={1}
+                  aria-hidden="true"
+                  focusable="false"
                 >
                   <path
                     strokeLinecap="round"
@@ -94,11 +116,20 @@ export const BandList = () => {
                   className="group flex flex-col justify-between items-center bg-neutral-900 rounded-lg p-4 border border-neutral-700 hover:border-neutral-600 transition-all"
                 >
                   <div className="flex justify-between items-center w-full mb-3 gap-3">
+                    <label htmlFor={`band-name-${band.id}`} className="sr-only">
+                      Nombre de la banda
+                    </label>
                     <input
+                      id={`band-name-${band.id}`}
                       type="text"
                       value={band.name}
-                      onChange={(e) => changeBandName(band.id, e.target.value)}
+                      onChange={(e) => {
+                        changeBandName(band.id, e.target.value);
+                      }}
+                      onBlur={() => onBlurBandNameInput(band.id, band.name)}
                       className="bg-transparent border-none p-0 text-neutral-200 font-medium focus:outline-none focus:ring-1 focus:ring-neutral-600 rounded px-1 -ml-1 w-full"
+                      aria-label={`Editar nombre de la banda ${band.name}`}
+                      maxLength={50}
                     />
                     <span className="text-sm bg-neutral-800 px-2 py-1 rounded text-neutral-400">
                       {band.votes} votos
@@ -110,6 +141,8 @@ export const BandList = () => {
                       onClick={() => incrementVote(band.id)}
                       className="bg-neutral-700 hover:bg-neutral-600 text-neutral-200 px-4 py-2 rounded-md text-sm font-medium shadow hover:shadow-md transition-all flex items-center justify-center w-10"
                       title="Aumentar votos"
+                      aria-label={`Aumentar votos de ${band.name}`}
+                      type="button"
                     >
                       <span>+</span>
                     </button>
@@ -117,6 +150,8 @@ export const BandList = () => {
                       onClick={() => decrementVote(band.id)}
                       className="bg-neutral-700 hover:bg-neutral-600 text-neutral-200 px-4 py-2 rounded-md text-sm font-medium shadow hover:shadow-md transition-all flex items-center justify-center w-10"
                       title="Disminuir votos"
+                      aria-label={`Disminuir votos de ${band.name}`}
+                      type="button"
                     >
                       <span>-</span>
                     </button>
@@ -124,6 +159,8 @@ export const BandList = () => {
                       onClick={() => deleteBand(band.id)}
                       className="bg-neutral-700 hover:bg-rose-900/50 text-rose-400 px-4 py-2 rounded-md text-sm font-medium shadow hover:shadow-md transition-all flex items-center gap-1 flex-1 justify-center"
                       title="Eliminar banda"
+                      aria-label={`Eliminar banda ${band.name}`}
+                      type="button"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -131,6 +168,8 @@ export const BandList = () => {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
+                        focusable="false"
                       >
                         <path
                           strokeLinecap="round"
@@ -151,7 +190,10 @@ export const BandList = () => {
         {/* Footer */}
         <div className="w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent h-px my-6" />
 
-        <div className="flex justify-between items-center">
+        <footer
+          className="flex justify-between items-center"
+          aria-label="Pie de página"
+        >
           <div className="text-sm text-neutral-400 flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -159,6 +201,8 @@ export const BandList = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -177,6 +221,8 @@ export const BandList = () => {
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-neutral-600"
             } bg-neutral-700 text-rose-400 px-5 py-2 rounded-lg transition-all font-medium shadow hover:shadow-lg flex items-center gap-1`}
+            aria-label="Limpiar toda la lista"
+            type="button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -184,6 +230,8 @@ export const BandList = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -194,7 +242,7 @@ export const BandList = () => {
             </svg>
             <span>Limpiar todo</span>
           </button>
-        </div>
+        </footer>
       </div>
     </section>
   );
